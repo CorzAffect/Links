@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COREY BOX</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #04040F; }
+    #root { height: 100%; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes glowPulse {
+      from { text-shadow: 0 0 10px #aaaadd, 0 0 30px rgba(150,150,220,0.3); }
+      to { text-shadow: 0 0 25px #ccccff, 0 0 70px rgba(180,180,255,0.5); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const links = [
+      {
+        label: "INSTAGRAM", sub: "@corzandaffect", url: "https://instagram.com/corzandaffect",
+        icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>),
+      },
+      {
+        label: "YOUTUBE", sub: "@coreybox", url: "https://youtube.com/@coreybox?si=lrZAqt0tp8j4pqEd",
+        icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>),
+      },
+      {
+        label: "X / TWITTER", sub: "@corzandaffect", url: "https://x.com/corzandaffect",
+        icon: (<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>),
+      },
+      {
+        label: "SUBSTACK", sub: "coreybox.substack.com", url: "https://coreybox.substack.com/",
+        icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="3" rx="1"/><rect x="3" y="10" width="18" height="3" rx="1"/><path d="M3 17l9 4 9-4V13H3v4z"/></svg>),
+      },
+      {
+        label: "WEBSITE", sub: "WeJustWin.app", url: "https://WeJustWin.app",
+        icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2c-3 4-3 16 0 20M12 2c3 4 3 16 0 20"/></svg>),
+      },
+      {
+        label: "ETSY", sub: "ONGODCREATIVE", url: "https://www.etsy.com/shop/ONGODCREATIVE",
+        icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M8 8h4M8 12h6M8 16h4"/></svg>),
+      },
+    ];
+    const STAGES = { BLACK:"black", STATIC:"static", BIOS:"bios", LOGO_IN:"logo_in", MAIN:"main" };
+    const biosText = ["COREY BOX SYSTEM  v2.6","© 1994-2026 JUST CREATE INC.","","MEMORY CHECK........... OK","SOUND UNIT............. OK","CREATIVE DRIVE......... OK","VISION MODULE.......... OK","","INITIALIZING..."];
+    const psBlue="#000080", psGray="#8888AA", psLight="#AAAACC", psWhite="#E0E0FF", psDark="#04040F";
+
+    function App() {
+      const [stage, setStage] = useState(STAGES.BLACK);
+      const [biosLines, setBiosLines] = useState([]);
+      const [selectedIdx, setSelectedIdx] = useState(0);
+      const [scanline, setScanline] = useState(0);
+      const [staticOpacity, setStaticOpacity] = useState(0);
+      const canvasRef = useRef(null);
+      const animFrameRef = useRef(null);
+
+      useEffect(() => {
+        const t1 = setTimeout(() => { setStage(STAGES.STATIC); setStaticOpacity(1); }, 600);
+        const t2 = setTimeout(() => { setStaticOpacity(0); setStage(STAGES.BIOS); }, 1400);
+        biosText.forEach((line, i) => setTimeout(() => setBiosLines(prev => [...prev, line]), 1600 + i * 160));
+        const t4 = setTimeout(() => setStage(STAGES.LOGO_IN), 1600 + biosText.length * 160 + 400);
+        const t5 = setTimeout(() => setStage(STAGES.MAIN), 1600 + biosText.length * 160 + 1600);
+        return () => [t1, t2, t4, t5].forEach(clearTimeout);
+      }, []);
+
+      useEffect(() => {
+        if (stage !== STAGES.STATIC) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const draw = () => {
+          const img = ctx.createImageData(canvas.width, canvas.height);
+          for (let i = 0; i < img.data.length; i += 4) {
+            const v = Math.random() > 0.5 ? 255 : 0;
+            img.data[i] = img.data[i+1] = img.data[i+2] = v; img.data[i+3] = 200;
+          }
+          ctx.putImageData(img, 0, 0);
+          animFrameRef.current = requestAnimationFrame(draw);
+        };
+        draw();
+        return () => cancelAnimationFrame(animFrameRef.current);
+      }, [stage]);
+
+      useEffect(() => {
+        if (stage !== STAGES.MAIN) return;
+        const interval = setInterval(() => setScanline(s => (s + 1) % 100), 30);
+        return () => clearInterval(interval);
+      }, [stage]);
+
+      useEffect(() => {
+        const handleKey = (e) => {
+          if (stage !== STAGES.MAIN) return;
+          if (e.key === "ArrowDown") setSelectedIdx(i => Math.min(i + 1, links.length - 1));
+          if (e.key === "ArrowUp") setSelectedIdx(i => Math.max(i - 1, 0));
+          if (e.key === "Enter") window.open(links[selectedIdx].url, "_blank");
+        };
+        window.addEventListener("keydown", handleKey);
+        return () => window.removeEventListener("keydown", handleKey);
+      }, [stage, selectedIdx]);
+
+      return (
+        <div style={{ minHeight:"100vh", background:psDark, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Courier New', monospace", position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"fixed", inset:0, zIndex:100, pointerEvents:"none", backgroundImage:"repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)" }} />
+          <div style={{ position:"fixed", inset:0, zIndex:99, pointerEvents:"none", background:"radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%)" }} />
+          {stage === STAGES.MAIN && <div style={{ position:"fixed", left:0, right:0, zIndex:98, pointerEvents:"none", top:`${scanline}%`, height:"3px", background:"rgba(255,255,255,0.025)" }} />}
+          {stage === STAGES.STATIC && <canvas ref={canvasRef} width={400} height={600} style={{ position:"fixed", inset:0, width:"100%", height:"100%", opacity:staticOpacity, transition:"opacity 0.3s ease", zIndex:50 }} />}
+          {stage === STAGES.BLACK && <div style={{ color:"#111" }}>■</div>}
+          {stage === STAGES.BIOS && (
+            <div style={{ position:"fixed", inset:0, display:"flex", alignItems:"flex-start", justifyContent:"flex-start", padding:"40px 50px", zIndex:40, background:psDark }}>
+              <div>
+                {biosLines.map((line, i) => (
+                  <div key={i} style={{ color: line===""?"transparent":(i===0?psWhite:psGray), fontSize:"13px", lineHeight:"1.9", letterSpacing:"0.05em", fontWeight:i===0?"bold":"normal" }}>{line||"\u00A0"}</div>
+                ))}
+                <span style={{ display:"inline-block", width:"9px", height:"14px", background:psGray, animation:"blink 0.8s step-end infinite", verticalAlign:"middle" }} />
+              </div>
+            </div>
+          )}
+          {stage === STAGES.LOGO_IN && (
+            <div style={{ position:"fixed", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:40, background:psDark, animation:"fadeIn 0.4s ease forwards" }}>
+              <div style={{ fontSize:"clamp(48px, 12vw, 80px)", fontWeight:"900", color:psWhite, letterSpacing:"0.08em", animation:"glowPulse 1s ease-in-out infinite alternate" }}>CB</div>
+              <div style={{ marginTop:"12px", fontSize:"11px", letterSpacing:"0.5em", color:psGray }}>JUST CREATE</div>
+            </div>
+          )}
+          {stage === STAGES.MAIN && (
+            <div style={{ position:"relative", zIndex:10, width:"100%", maxWidth:"460px", padding:"40px 24px", animation:"fadeIn 0.5s ease forwards" }}>
+              <div style={{ textAlign:"center", marginBottom:"36px", borderBottom:`1px solid ${psBlue}`, paddingBottom:"20px" }}>
+                <div style={{ fontSize:"clamp(36px, 10vw, 56px)", fontWeight:"900", color:psWhite, letterSpacing:"0.1em", textShadow:"0 0 12px rgba(180,180,255,0.5)", lineHeight:1 }}>COREY BOX</div>
+                <div style={{ fontSize:"10px", letterSpacing:"0.5em", color:psGray, marginTop:"8px" }}>── JUST CREATE ──</div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:"2px" }}>
+                {links.map((link, i) => {
+                  const isSel = selectedIdx === i;
+                  return (
+                    <div key={i}
+                      onClick={() => { setSelectedIdx(i); setTimeout(() => window.open(link.url, "_blank"), 150); }}
+                      onMouseEnter={() => setSelectedIdx(i)}
+                      style={{ display:"flex", alignItems:"center", gap:"14px", padding:"11px 16px", background:isSel?`linear-gradient(90deg, ${psBlue} 0%, rgba(0,0,80,0.6) 100%)`:"transparent", border:isSel?`1px solid ${psLight}44`:"1px solid transparent", borderRadius:"3px", cursor:"pointer", transition:"background 0.1s ease" }}
+                    >
+                      <span style={{ width:"14px", color:isSel?psWhite:"transparent", fontSize:"12px", flexShrink:0 }}>{isSel?"▶":" "}</span>
+                      <div style={{ color:isSel?psWhite:psGray, display:"flex", alignItems:"center", flexShrink:0 }}>{link.icon}</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:"13px", fontWeight:isSel?"bold":"normal", color:isSel?psWhite:psLight, letterSpacing:"0.1em" }}>{link.label}</div>
+                        <div style={{ fontSize:"10px", color:isSel?psGray:"#555577", marginTop:"1px" }}>{link.sub}</div>
+                      </div>
+                      {isSel && <div style={{ fontSize:"10px", color:psGray, letterSpacing:"0.1em", flexShrink:0 }}>OPEN</div>}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop:"32px", display:"flex", justifyContent:"center", gap:"24px", borderTop:`1px solid ${psBlue}`, paddingTop:"16px" }}>
+                {[{symbol:"✕",label:"BACK",color:"#CC4444"},{symbol:"○",label:"SELECT",color:"#CCAA44"}].map(btn => (
+                  <div key={btn.label} style={{ display:"flex", alignItems:"center", gap:"6px" }}>
+                    <span style={{ fontSize:"14px", color:btn.color, textShadow:`0 0 6px ${btn.color}88` }}>{btn.symbol}</span>
+                    <span style={{ fontSize:"9px", color:"#444466", letterSpacing:"0.2em" }}>{btn.label}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop:"20px", textAlign:"center", fontSize:"9px", color:"#222244", letterSpacing:"0.15em" }}>JUST CREATE SYSTEM  v2.6 © 2026</div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
